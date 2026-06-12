@@ -49,7 +49,7 @@
             <link href="${url.resourcesPath}/${style}" rel="stylesheet" />
         </#list>
     </#if>
-    <script type="importmap">
+    <script type="importmap" nonce="${nonce.value}">
         {
             "imports": {
                 "rfc4648": "${url.resourcesCommonPath}/vendor/rfc4648/rfc4648.js"
@@ -57,7 +57,7 @@
         }
     </script>
     <#if darkMode>
-      <script type="module" async blocking="render">
+      <script type="module" async blocking="render" nonce="${nonce.value}">
           <#outputformat "JavaScript">
           const DARK_MODE_CLASS = ${properties.kcDarkModeClass?c};
           const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -88,7 +88,7 @@
         </#list>
     </#if>
     <script type="module" src="${url.resourcesPath}/js/passwordVisibility.js"></script>
-    <script type="module">
+    <script type="module" nonce="${nonce.value}">
         <#outputformat "JavaScript">
         import { startSessionPolling } from ${(url.resourcesPath + "/js/authChecker.js")?c};
 
@@ -97,7 +97,7 @@
         );
         </#outputformat>
     </script>
-    <script type="module">
+    <script type="module" nonce="${nonce.value}">
         document.addEventListener("click", (event) => {
             const link = event.target.closest("a[data-once-link]");
 
@@ -121,7 +121,7 @@
         });
     </script>
     <#if authenticationSession??>
-        <script type="module">
+        <script type="module" nonce="${nonce.value}">
              <#outputformat "JavaScript">
             import { checkAuthSession } from ${(url.resourcesPath + "/js/authChecker.js")?c};
 
@@ -131,7 +131,7 @@
             </#outputformat>
         </script>
     </#if>
-    <script>
+    <script nonce="${nonce.value}">
       // Workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
       const isFirefox = true;
     </script>

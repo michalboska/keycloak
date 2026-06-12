@@ -17,10 +17,13 @@
 
 package org.keycloak.testframework.ui.page;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.keycloak.testframework.ui.webdriver.ManagedWebDriver;
 
+import com.google.common.base.Preconditions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -33,6 +36,9 @@ public abstract class AbstractLoginPage extends AbstractPage {
 
     @FindBy(xpath = "//select[@aria-label='languages']")
     private WebElement languages;
+
+    @FindBy(xpath = "//script")
+    private List<WebElement> scripts;
 
     @FindBy(id = "kc-current-locale-link")
     private WebElement languageTextBase;    // base theme
@@ -74,6 +80,23 @@ public abstract class AbstractLoginPage extends AbstractPage {
         }
     }
 
+    public List<WebElement> getScripts() {
+        if (scripts == null) {
+            return Collections.emptyList();
+        }
+        return scripts;
+    }
+
+    public List<WebElement> getInlineScriptsWithoutNonce() {
+        if (scripts == null) {
+            return Collections.emptyList();
+        }
+        return scripts
+                .stream()
+                .filter(s -> isInlineScript(s) && hasNoNonce(s))
+                .toList();
+    }
+
     public String getAttemptedUsername() {
         try {
             String text = attemptedUsernameLabel.getAttribute("value");
@@ -98,5 +121,24 @@ public abstract class AbstractLoginPage extends AbstractPage {
         } catch (NoSuchElementException e) {
             return Optional.empty();
         }
+    }
+
+    private boolean isInlineScript(WebElement scriptElement) {
+        checkIsScript(scriptElement);
+        var src = scriptElement.getDomAttribute("src");
+        return src == null || src.isBlank();
+    }
+
+    private boolean hasNoNonce(WebElement scriptElement) {
+        checkIsScript(scriptElement);
+        var nonce = scriptElement.getDomAttribute("nonce");
+        return nonce == null || nonce.isBlank();
+    }
+
+    private void checkIsScript(WebElement webElement) {
+        Preconditions.checkArgument(
+                "script".equals(webElement.getTagName()),
+                String.format("Must be a <script> tag, was <%s>", webElement.getTagName())
+        );
     }
 }
